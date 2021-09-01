@@ -3,6 +3,7 @@
 #Began 31/08/2021
 
 import time
+import random
 
 class Board():
 
@@ -32,21 +33,6 @@ class Board():
                 if j == 8:
                     print("")
     
-    def random(self):
-     #in future: used to generate a new random sudoku board
-     #currently: enters a premade sudoku board from internet
-        self.board = [
-            [0,0,0,8,0,1,0,0,0],
-            [0,0,0,0,0,0,4,3,0],
-            [5,0,0,0,0,0,0,0,0],
-            [0,0,0,0,7,0,8,0,0],
-            [0,0,0,0,0,0,1,0,0],
-            [0,2,0,0,3,0,0,0,0],
-            [6,0,0,0,0,0,0,7,5],
-            [0,0,3,4,0,0,0,0,0],
-            [0,0,0,2,0,0,6,0,0]
-        ]
-
     def check_valid(self, row, col, num):
         #valid if unique in row, column and box
         top_left = (row - row % 3, col - col % 3)
@@ -83,6 +69,16 @@ class Board():
                     return (i,j)
         return False
 
+    #returns integer count of non-empty boxes
+    #used for generating new sudoku box
+    def count_filled(self):
+        count = 0
+        for i in range(9):
+            for j in range(9):
+                if self.board[i][j] != 0:
+                    count += 1
+        return count
+
     #returns true boolean if sudoku is not empty
     def solve_backtrack(self):
         
@@ -98,20 +94,61 @@ class Board():
                     self.board[row][col] = 0
             return False
 
-                    
+    #used to create completed random board
+    def fill_random(self):
+
+        if self.empty() == False:
+            return True
+        else:
+            row,col = self.empty()
+            for i in range(1,10):
+                num = random.randint(1,9)
+                if self.check_valid(row,col,num) == True:
+                    self.board[row][col] = num
+                    if (self.solve_backtrack() == True):
+                        return True
+                    self.board[row][col] = 0
+            return False
+
+#generates new sudoku game
+#for now, generates pseudo sudoku board
+def generate_new(new,difficulty):
+    #difficulty: hard, medium, easy
+    #hard: 17 clues
+    #medium: 27 clues
+    #easy: 37 clues
+
+    clues = 7
+    if difficulty[0].lower() == "h":
+        clues += 10
+    elif difficulty[0].lower() == "m":
+        clues += 20
+    elif difficulty[0].lower() == "e":
+        clues += 30
+
+    new.fill_random()
+    while new.count_filled() > clues:
+        i = random.randint(0,8)
+        j = random.randint(0,8)
+        new.board[i][j] = 0  
+
 
 
 
 if __name__ == "__main__":
-    new_board = Board()
-    new_board.random()
-    print("Original Sudoku board")
-    new_board.print_board()
+    
+    print("Choose difficulty:")
+    new = Board()
+    generate_new(new,input("Hard, medium, or easy: "))
+    print("\nOriginal Sudoku board")
+    new.print_board()
 
+    input("\nEnter any key to continue: ")
     start_time = time.time()
-    new_board.solve_backtrack()
+    #new_board.solve_backtrack()
+    new.fill_random()
     end_time = time.time()
 
     print("\nSolved Sudoku board")
-    new_board.print_board()
+    new.print_board()
     print(f"Total time elapsed: {end_time - start_time} seconds")
