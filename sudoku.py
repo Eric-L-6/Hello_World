@@ -137,18 +137,25 @@ def generate_new(new,difficulty):
 
 if __name__ == "__main__":
     
-    print("Choose difficulty:")
-    new = Board()
-    generate_new(new,input("Hard, medium, or easy: "))
-    print("\nOriginal Sudoku board")
-    new.print_board()
+    while True: 
+        print("Choose difficulty:")
+        new = Board()
+        generate_new(new,input("Hard, medium, or easy: "))
+        print("\nOriginal Sudoku board")
+        new.print_board()
 
-    input("\nEnter any key to continue: ")
-    start_time = time.time()
-    #new_board.solve_backtrack()
-    new.fill_random()
-    end_time = time.time()
+        input("\nEnter any key to continue: ")
+        start_time = time.time()
+        #new_board.solve_backtrack()
+        new.fill_random()
+        end_time = time.time()
 
-    print("\nSolved Sudoku board")
-    new.print_board()
-    print(f"Total time elapsed: {end_time - start_time} seconds")
+        print("\nSolved Sudoku board")
+        new.print_board()
+        print(f"Total time elapsed: {end_time - start_time} seconds")
+
+        if input("Continue playing? y/n ")[0].lower == "y":
+            continue
+        else:
+            print("Thanks for playing! ")
+            break
