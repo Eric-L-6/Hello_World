@@ -61,13 +61,13 @@ class Board():
 
     #returns tuple of empty coord
     #else returns false
-    def empty(self):
+    def full(self):
 
         for i in range (9):
             for j in range (9):
                 if self.board[i][j] == 0:
                     return (i,j)
-        return False
+        return True
 
     #returns integer count of non-empty boxes
     #used for generating new sudoku box
@@ -80,16 +80,19 @@ class Board():
         return count
 
     #returns true boolean if sudoku is not empty
-    def solve_backtrack(self):
+    def solve_backtrack(self, counter):
         
-        if self.empty() == False:
+        if self.full():
             return True
         else:
-            row,col = self.empty()
+            row,col = self.full()
             for num in range(1,10):
                 if self.check_valid(row,col,num) == True:
                     self.board[row][col] = num
-                    if (self.solve_backtrack() == True):
+                    if self.full() == True:
+                        counter += 1
+                        break
+                    elif self.solve_backtrack(counter) == True:
                         return True
                     self.board[row][col] = 0
             return False
@@ -97,15 +100,32 @@ class Board():
     #used to create completed random board
     def fill_random(self):
 
-        if self.empty() == False:
+        if self.full():
             return True
         else:
-            row,col = self.empty()
+            row,col = self.full()
             for i in range(1,10):
                 num = random.randint(1,9)
                 if self.check_valid(row,col,num) == True:
                     self.board[row][col] = num
                     if (self.solve_backtrack() == True):
+                        return True
+                    self.board[row][col] = 0
+            return False
+
+    def not_unique(self,count):
+        if self.full():
+            if count == 0:
+                count += 1
+                return False
+            else:
+                return True
+        else:
+            row,col = self.full()
+            for num in range(1,10):
+                if self.check_valid(row,col,num) == True:
+                    self.board[row][col] = num
+                    if (self.not_unique(count) == True):
                         return True
                     self.board[row][col] = 0
             return False
@@ -132,13 +152,20 @@ def generate_new(new,difficulty):
         j = random.randint(0,8)
         new.board[i][j] = 0  
 
+def check_unique(new):
+    count = 0
+    return not new.not_unique(count)
+    
+    
 
 
 
 if __name__ == "__main__":
     
+    print("\nWelcome to Sudoku by Eric")
+
     while True: 
-        print("Choose difficulty:")
+        print("\nChoose difficulty:")
         new = Board()
         generate_new(new,input("Hard, medium, or easy: "))
         print("\nOriginal Sudoku board")
@@ -146,15 +173,15 @@ if __name__ == "__main__":
 
         input("\nEnter any key to continue: ")
         start_time = time.time()
-        #new_board.solve_backtrack()
-        new.fill_random()
+        new.solve_backtrack()
         end_time = time.time()
 
         print("\nSolved Sudoku board")
         new.print_board()
-        print(f"Total time elapsed: {end_time - start_time} seconds")
+        print("Total time elapsed: ")
+        print(f"{end_time - start_time} seconds")
 
-        if input("Continue playing? y/n ")[0].lower == "y":
+        if input("\nContinue playing? y/n ")[0].lower() == "y":
             continue
         else:
             print("Thanks for playing! ")
